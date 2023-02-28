@@ -1,0 +1,247 @@
++import pandas as pd
+import numpy as np
+
+
+
+
+# Breakout Indicators
+
+
+def get_high_lows_lookback(high, low, lookback_days):
+    """
+    Get highs and lows in a lookbak window.
+    
+    Parameters
+    ----------
+    high : DataFrame
+        High price for each ticker and date
+    low : DataFrame
+        Low price for each ticker and date
+    lookback_days : int
+        
+    
+    Return
+    -------
+    lookback_high : DataFrame
+        Highest price of the lokback window
+    lookback_low : DataFrame
+        Lowest price of the lookback window
+    """
+    
+    
+    lookback_high = high.shift(1).rolling(window = lookback_days).max()
+    lookback_low = low.shift(1).rolling(window = lookback_days).min()
+
+    return lookback_high, lookback_low
+
+
+def create_breakout_signal(close, lookback_high, lookback_low):
+    """
+    Generate long, short and do nothing signals.
+    
+    Parámetross
+    ----------
+    close : DataFrame
+        Closing prices for each ticker and date
+    lookback_high : DataFrame
+        Highest price of the lokback window
+    lookback_low : DataFrame
+        Lowest price of the lookback window
+    
+    Returns
+    -------
+    Signals : DataFrame
+        long, short, and do nothing (1,0,-1) for each ticker and date
+    """
+    
+    signals = pd.DataFrame(0, columns = close.columns, index = close.index)
+    signals[lookback_high < close] = 1
+    signals[lookback_low > close] = -1
+
+    return signals
+
+
+
+def create_breakout_signal_rates(close, lookback_high, lookback_low):
+    """
+    Generate long, short and do nothing signals.
+    
+    Parámetross
+    ----------
+    close : DataFrame
+        Closing prices for each ticker and date
+    lookback_high : DataFrame
+        Highest price of the lokback window
+    lookback_low : DataFrame
+        Lowest price of the lookback window
+    
+    Returns
+    -------
+    Signals : DataFrame
+        long, short, and do nothing (1,0,-1) for each ticker and date
+    """
+    
+    signals = pd.DataFrame(0, columns = close.columns, index = close.index)
+    signals[lookback_high < close] = -1
+    signals[lookback_low > close] = 1
+
+    return signals
+
+
+
+# MACD Indicators
+
+def calculate_simple_moving_average(close, n):
+    """
+    Calculates the simple moving average.
+    
+    Parameters
+    ----------
+    Close : DataFrame
+        Close prece for every ticker and date
+    
+    n : int
+        window size for the moving average computation
+
+    Returns
+    -------
+    sma : DataFrame
+      Simple movig average
+    
+    """
+    
+    
+    sma = close.rolling(window = n).mean()
+    
+
+    return sma
+
+
+
+def calculate_macd_oscillator(close,n1,n2):
+    """
+    Calculates the moving average convergence divergences oscillator
+    given a short moving average of length n1 and a long moving 
+    average of length n2
+    
+    Parameters
+    ----------
+    Close : DataFrame
+        Close price for every ticker and date
+    
+    n1: int
+        short window size for the moving average computation
+    n2: int
+        long window size for the moving average computation    
+
+    Returns
+    -------
+    macd : DataFrame
+      MACD Oscillator
+    
+    """
+    
+
+    assert n1 < n2
+    
+    macd = calculate_simple_moving_average(close, n1) - calculate_simple_moving_average(close, n2)
+    
+
+    return macd
+
+def create_macd_signal(close,n1,n2):
+    """
+    Create a momentum-based signal based on the MACD crossover principle:
+    Buy signal when MACD cross above zero, sell signal when MACD croses 
+    below zero.
+    
+    Parameters
+    ----------
+    Close : DataFrame
+        Close price for every ticker and date
+    
+    n1: int
+        short window size for the moving average computation
+    n2: int
+        long window size for the moving average computation    
+
+    Returns
+    -------
+    Signals : DataFrame
+      Buy (1) Sell (-1) or do nothing signal (0)
+    """
+    #TODO: Implement function
+    # Calculate macd and get the signs of the values
+    macd = calculate_macd_oscillator(close,n1,n2)
+    macd_sign = np.sign(macd)
+    #Create a copy shifted
+    macd_shifted_sign = macd_sign.shift(1,axis=0)
+    #Multiply by the sign by boolean to creates signals 
+    signals = macd_sign*(macd_sign !=macd_shifted_sign)
+
+    return signals
+
+
+# Bollinger Band Indicators
+
+
+def calculate_simple_moving_sample_stdev(close, n):
+    """
+    Calculates the simple moving standard deviation.
+    
+    Parameters
+    ----------
+    Close : DataFrame
+        Close prece for every ticker and date
+    
+    n : int
+        window size for the moving average computation
+
+    Returns
+    -------
+    sma : DataFrame
+      Simple movig standard deviation
+    
+    """
+    #TODO: Implement function
+    
+    smsd = close.rolling(window = n).std()
+    
+
+    return smsd
+
+
+def create_bollinger_band_signal(close, n):
+    
+    """
+    Create a meanreverting-based signal based on the upper and lower 
+    bands of the Bollinger bands. Geenerate a buy sigal when the price 
+    is bellow the lower band and a sell signal when the price is above
+    the uper band.
+
+    
+    Parameters
+    ----------
+    Close : DataFrame
+        Close price for every ticker and date
+    
+    n: int
+       window size for the moving average and standard deviation computation
+    
+    Returns
+    -------
+    Signals : DataFrame
+      Buy (1) Sell (-1) or do nothing signal (0)
+    """
+    
+    sma = calculate_simple_moving_average(close,n)
+    stdev = calculate_simple_moving_sample_stdev(close, n)
+    upper = sma + 2*stdev
+    lower = sma - 2*stdev
+    
+    sell = close > upper
+    buy = close < lower
+    
+    signal = 1*buy - 1* sell
+    
+    return signal
