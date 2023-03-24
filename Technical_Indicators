@@ -295,7 +295,7 @@ def create_bollinger_band_signal(close, n):
     """
     Generate long, short and do nothing signals based on Relative strengnht index overbught/oversold state.
     
-    Parámetross
+    Parameters
     ----------
     close : DataFrame
         Closing prices for each ticker and date
@@ -319,3 +319,62 @@ def create_bollinger_band_signal(close, n):
 
 # Candle pattern Indicators 
 
+def upper_shadow(high,close,open_):
+"""
+    Calculates the length of the candle's upper shadow.
+    
+    Parameters
+    ----------
+    high : DataFrame
+        High prices for each ticker and date
+    close : DataFrame
+        Closing prices for each ticker and date
+    open_ : DataFrame
+        Open prices for each ticker and date    
+    
+    Returns
+    -------
+    upper_shadiw : DataFrame
+        Length of upper shadow for each ticker and date
+    """
+
+    return high - np.maximum(close, open_)
+
+def lower_shadow(close,open_,low):
+"""
+    Calculates the length of the candle's lower shadow.
+    
+    Parameters
+    ----------
+    close : DataFrame
+        Closing prices for each ticker and date
+    open_ : DataFrame
+        Open prices for each ticker and date  
+    low : DataFrame
+        Lowprices for each ticker and date
+    
+    Returns
+    -------
+    lower_shadow : DataFrame
+        Length of upper shadow for each ticker and date
+    """
+
+    return np.minimum(close, open_) - low
+
+def body_size (open_,close):  
+    """
+    Calculates the length of the candle's body.
+    
+    Parameters
+    ----------
+    open_ : DataFrame
+        Open prices for each ticker and date   
+    close : DataFrame
+        Closing prices for each ticker and date   
+    
+    Returns
+    -------
+    body : DataFrame
+        Length of candle's body for each ticker and date
+    """
+    return abs(open_-close)
