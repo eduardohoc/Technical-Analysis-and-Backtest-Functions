@@ -39,7 +39,7 @@ def create_breakout_signal(close, lookback_high, lookback_low):
     """
     Generate long, short and do nothing signals.
     
-    Parámetross
+    Parameters
     ----------
     close : DataFrame
         Closing prices for each ticker and date
@@ -66,7 +66,7 @@ def create_breakout_signal_rates(close, lookback_high, lookback_low):
     """
     Generate long, short and do nothing signals.
     
-    Parámetross
+    Parameters
     ----------
     close : DataFrame
         Closing prices for each ticker and date
