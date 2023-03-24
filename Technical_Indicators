@@ -378,3 +378,39 @@ def body_size (open_,close):
         Length of candle's body for each ticker and date
     """
     return abs(open_-close)
+    
+ def create_reversal_signal(high,open_,close,low, l1=2.5,l2=0.3):
+    """
+    Generate long, short and do nothing signals based on shooting star and hammer candlestick formations.
+    
+    Parámetross
+    ----------
+    high : DataFrame
+        High prices for each ticker and date
+    open_ : DataFrame
+        Open prices for each ticker and date
+    close : DataFrame
+        Closing prices for each ticker and date
+    low : DataFrame
+        low prices for each ticker and date    
+    
+    Returns
+    -------
+    Signals : DataFrame
+        long, short, and do nothing (1,0,-1) for each ticker and date
+    """
+    upper_s = upper_shadow (high,close,open_)
+    lower_s = lower_shadow(close,open_,low)
+    body = body_size (open_,close)
+    
+    ratio1 = upper_s/ body
+    ratio2 = lower_s/ body 
+    
+    signals = pd.DataFrame(0, columns = close.columns, index = close.index)
+    signals[(ratio1 >l1) & (lower_s< l2*upper_s)] = -1
+    signals[(ratio2 >l1) & (upper_s< l2*lower_s)] = 1
+    
+
+    return signals   
+    
+    
