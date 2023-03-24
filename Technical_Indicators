@@ -245,3 +245,77 @@ def create_bollinger_band_signal(close, n):
     signal = 1*buy - 1* sell
     
     return signal
+    
+ # RSI Indicator 
+ 
+ def compute_rsi(prices, n=14):
+    
+    """
+    Calculates the Relative strenght index (RSI) of a series of prices.
+    
+    Parameters
+    ----------
+    prices : Series
+        Close prece Series
+    n: Number of days to compute the RSI
+    Returns
+    -------
+    rsi : Series
+      Relative strenght Index series
+     """  
+    
+    
+    deltas = np.diff(prices)
+    seed = deltas[:n + 1]
+    up = seed[seed >= 0].sum() / n
+    down = -seed[seed < 0].sum() / n
+    rs = up / down
+    rsi = np.zeros_like(prices)
+    rsi[:n] = 100. - 100. / (1. + rs)
+
+    for i in range(n, len(prices)):
+        delta = deltas[i - 1]
+
+        if delta > 0:
+            upval = delta
+            downval = 0.
+        else:
+            upval = 0.
+            downval = -delta
+
+        up = (up * (n - 1) + upval) / n
+        down = (down * (n - 1) + downval) / n
+        rs = up / down
+        rsi[i] = 100. - 100. / (1. + rs)
+
+    return rsi
+ 
+ 
+    def create_rsi_signal(close, n=14,up=60,down=40):
+    """
+    Generate long, short and do nothing signals based on Relative strengnht index overbught/oversold state.
+    
+    Parámetross
+    ----------
+    close : DataFrame
+        Closing prices for each ticker and date
+    low : DataFrame
+        low prices for each ticker and date    
+    
+    Returns
+    -------
+    Signals : DataFrame
+        long, short, and do nothing (1,0,-1) for each ticker and date
+    """
+    rsi =  pd.DataFrame(0, columns = close.columns, index = close.index)
+    for column in close.columns:
+        rsi[column] = compute_rsi(close[column],n)
+        
+    signals = pd.DataFrame(0, columns = close.columns, index = close.index)
+    signals[rsi>up] = -1
+    signals[rsi<down]= 1
+    
+    return signals
+
+# Candle pattern Indicators 
+
