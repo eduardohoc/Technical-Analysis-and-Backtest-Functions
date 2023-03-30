@@ -210,3 +210,55 @@ def find_outliers(ks_values, p_values, ks_threshold, pvalue_threshold=0.05):
     
     
     return set(outliers.index.values)
+
+#Functions to measeure success based only on directional predictions
+
+def get_diff_lookahead(close, lookahead_prices):
+    """
+    Calculate the log returns from the lookahead days to the signal day.
+    
+    Parameters
+    ----------
+    close : DataFrame
+        Close price for each ticker and date
+    lookahead_prices : DataFrame
+        The lookahead prices for each ticker and date
+    
+    Returns
+    -------
+    lookahead_returns : DataFrame
+        The lookahead log returns for each ticker and date
+    """
+    #TODO: Implement function
+    lookahead_diff = lookahead_prices - close
+    
+    
+    return lookahead_diff
+
+
+def get_indicator(lookahead_diff, bps):
+    """
+    Generate indicator of  long movement, short movement, no movement.
+    
+    Parameters
+    ----------
+    lookahead_diff : Pandas Series
+        Difference in price in signal window
+    
+    Returns
+    -------
+    indicator : Pandas Series
+        1 for a difference larger than bps, -1 for a difference smaller than - bps
+    """
+    
+    #signals = pd.DataFrame(0, columns = close.columns, index = close.index) # Para Dataframe de varias series
+    indicator = pd.Series(0, index = lookahead_diff.index) # Para Serie 
+    indicator[bps > lookahead_diff] = 1
+    indicator[-bps <  lookahead_diff] = -1
+
+    return indicator
+
+
+
+
+
