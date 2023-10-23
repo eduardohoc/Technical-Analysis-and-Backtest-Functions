@@ -259,6 +259,39 @@ def get_indicator(lookahead_diff, bps):
     return indicator
 
 
+import itertools
+def custom_grid_search(func, params, param_grid, eval_func, eval_dat):
+
+    results = pd.DataFrame(columns = ['score', 'params', 'iteration'],
+                              index = list(range(MAX_EVALS)))
+    
+    keys, values = zip(*param_grid.items())
+    
+    i = 0
+    
+    # Iterate through every possible combination of hyperparameters
+    for v in itertools.product(*values):
+        
+        # Create a hyperparameter dictionary
+        hyperparameters = dict(zip(keys, v))
+         # Evalute the hyperparameters
+        
+        result=func(*params,**hyperparameters)
+        eval_results = eval_func(result, eval_dat)
+        score=sum(abs(eval_results.values))
+        # print(eval_results.values)
+        results.loc[i, :] = [score,hyperparameters, i]
+        
+        i += 1
+        # Normally would not limit iterations
+        if i > MAX_EVALS:
+            break
+       
+    # Sort with best score on top
+    results.sort_values('score', ascending = True, inplace = True)
+    results.reset_index(inplace = True)
+    
+    return results  
 
 
 
