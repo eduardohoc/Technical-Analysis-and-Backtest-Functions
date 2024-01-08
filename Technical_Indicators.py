@@ -223,17 +223,16 @@ def create_bollinger_band_signal(close, n):
     Parameters
     ----------
     Close : DataFrame
-        Close price for every ticker and date
+    Close price for every ticker and date
     
     n: int
-       window size for the moving average and standard deviation computation
+    window size for the moving average and standard deviation computation
     
     Returns
     -------
     Signals : DataFrame
-      Buy (1) Sell (-1) or do nothing signal (0)
+    Buy (1) Sell (-1) or do nothing signal (0)
     """
-    
     sma = calculate_simple_moving_average(close,n)
     stdev = calculate_simple_moving_sample_stdev(close, n)
     upper = sma + 2*stdev
@@ -241,14 +240,13 @@ def create_bollinger_band_signal(close, n):
     
     sell = close > upper
     buy = close < lower
-    
     signal = 1*buy - 1* sell
-    
     return signal
     
- # RSI Indicator 
- 
- def compute_rsi(prices, n=14):
+
+### RSI Indicator 
+
+def compute_rsi(prices, n=14):
     
     """
     Calculates the Relative strenght index (RSI) of a series of prices.
@@ -291,7 +289,7 @@ def create_bollinger_band_signal(close, n):
     return rsi
  
  
-    def create_rsi_signal(close, n=14,up=60,down=40):
+def create_rsi_signal(close, n=14,up=60,down=40):
     """
     Generate long, short and do nothing signals based on Relative strengnht index overbught/oversold state.
     
@@ -320,7 +318,8 @@ def create_bollinger_band_signal(close, n):
 # Candle pattern Indicators 
 
 def upper_shadow(high,close,open_):
-"""
+    
+    """
     Calculates the length of the candle's upper shadow.
     
     Parameters
@@ -341,7 +340,7 @@ def upper_shadow(high,close,open_):
     return high - np.maximum(close, open_)
 
 def lower_shadow(close,open_,low):
-"""
+    """
     Calculates the length of the candle's lower shadow.
     
     Parameters
@@ -379,7 +378,7 @@ def body_size (open_,close):
     """
     return abs(open_-close)
     
- def create_reversal_signal(high,open_,close,low, l1=2.5,l2=0.3):
+def create_reversal_signal(high,open_,close,low, l1=2.5,l2=0.3):
     """
     Generate long, short and do nothing signals based on shooting star and hammer candlestick formations.
     
@@ -412,5 +411,3 @@ def body_size (open_,close):
     
 
     return signals   
-    
-    
